@@ -1,6 +1,8 @@
 #include <iostream>
 #include <chrono>
 #include <cmath>
+#include <stdio.h>
+#include <omp.h>
 
 using namespace std;
 
@@ -12,25 +14,67 @@ bool isPrime(int n) {
   return true;
 }
 
+int test(int first, int last)
+{
+  int sumat = 0;
+
+  #pragma omp for schedule(static) ordered
+  for(int i=first; i < last; i++){
+    //Do something here
+    int aux = 0;
+    for(int j=1; j<=i; j++)
+    if(i%j==0 && i%1==0)
+    aux++;
+    if(aux==2)
+    {
+      #pragma omp ordered
+      // cout<<i<<endl;
+      sumat=sumat+i;
+    }
+  }
+
+  // cout << "Sum2 = "<<sumat<<endl;
+  return sumat;
+}
+
 int main(int argc, char const *argv[])
 {
-    int n = 50000, sum = 0;
+    int n = 5000000, sum = 0, sum2 = 0;
     bool IsPrime = false;
 
     //Secuencial
     auto start = chrono::high_resolution_clock::now();
-    for (int i = n; i > 0; i--)
+    for (int i=1; i<n; i++)
     {
-        IsPrime = isPrime(i);
-        if(IsPrime) sum += i; 
+        int aux = 0;
+        for(int j=1; j<=i; j++)
+        if(i%j==0 && i%1==0)
+        aux++;
+        if(aux==2)
+        {
+          // cout<<i<<endl;
+          sum=sum+i;
+        }
+        // IsPrime = isPrime(i);
+        // if(IsPrime) sum += i; 
     }
-
     auto end = chrono::high_resolution_clock::now();
+
+    cout << "Secuencial" << endl;
     cout << "Suma = " << sum << endl;
-    cout << "Duración: " << chrono::duration_cast<chrono::microseconds>(end - start).count() << " microseconds" << endl;
+    cout << "Duracion: " << chrono::duration_cast<chrono::microseconds>(end - start).count() << " microseconds\n" << endl;
 
     //Paralelo
-    
+    // auto start2 = chrono::high_resolution_clock::now();
+    // #pragma omp parallel
+    // {
+    //   sum2 = test(1,n);
+    // }
+    // auto end2 = chrono::high_resolution_clock::now();
+
+    // cout << "Paralelo" << endl;
+    // cout << "Suma = " << sum2 << endl;
+    // cout << "Duracion: " << chrono::duration_cast<chrono::microseconds>(end2 - start2).count() << " microseconds\n" << endl;
 
     return 0;
 }
