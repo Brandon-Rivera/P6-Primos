@@ -39,8 +39,9 @@ int test(int first, int last)
 
 int main(int argc, char const *argv[])
 {
-    int n = 5000000, sum = 0, sum2 = 0;
+    int n = 5000, sum = 0, sum2 = 0;
     bool IsPrime = false;
+    float T1 = 0, TP = 0;
 
     //Secuencial
     auto start = chrono::high_resolution_clock::now();
@@ -62,19 +63,23 @@ int main(int argc, char const *argv[])
 
     cout << "Secuencial" << endl;
     cout << "Suma = " << sum << endl;
-    cout << "Duracion: " << chrono::duration_cast<chrono::microseconds>(end - start).count() << " microseconds\n" << endl;
+    T1 = chrono::duration_cast<chrono::microseconds>(end - start).count();
+    cout << "Duracion: " << T1 << " microseconds\n" << endl;
 
     //Paralelo
-    // auto start2 = chrono::high_resolution_clock::now();
-    // #pragma omp parallel
-    // {
-    //   sum2 = test(1,n);
-    // }
-    // auto end2 = chrono::high_resolution_clock::now();
+    auto start2 = chrono::high_resolution_clock::now();
+    #pragma omp parallel
+    {
+      sum2 = test(1,n);
+    }
+    auto end2 = chrono::high_resolution_clock::now();
 
-    // cout << "Paralelo" << endl;
-    // cout << "Suma = " << sum2 << endl;
-    // cout << "Duracion: " << chrono::duration_cast<chrono::microseconds>(end2 - start2).count() << " microseconds\n" << endl;
+    cout << "Paralelo" << endl;
+    cout << "Suma = " << sum2 << endl;
+    TP = chrono::duration_cast<chrono::microseconds>(end2 - start2).count();
+    cout << "Duracion: " << TP << " microseconds\n" << endl;
+
+    cout << "Speedup: " << T1/TP << endl;
 
     return 0;
 }
